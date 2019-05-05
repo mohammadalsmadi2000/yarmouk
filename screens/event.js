@@ -33,7 +33,7 @@ import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
 import { Feather } from '@expo/vector-icons';
 
 const { height, width } = Dimensions.get('window')
-class News extends Component {
+class Event extends Component {
   state = {
     selected: '',
   }
@@ -98,7 +98,7 @@ class News extends Component {
                               style={{ flex: 1, fontWeight: '700', backgroundColor: 'white' ,justifyContent:'center'}}
                           >
                             <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Search')}}>
-                            <Text style={{color:'silver'}}>Search for news..</Text></TouchableOpacity>
+                            <Text style={{color:'silver'}}>event near me..</Text></TouchableOpacity>
                           </View>
 
                       </View>
@@ -113,7 +113,7 @@ class News extends Component {
                         <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 20 }}>
                           <View style={{flexDirection:'row',justifyContent:'space-between'}}>
                             <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                                Explore what's happing in university
+                                Explore Events in Yarmouk
                             </Text>
 
 </View>
@@ -123,21 +123,33 @@ class News extends Component {
                                   <Card style={{flex: 0,margin:10,paddingHorizontal:10}}>
 
                                       <CardItem cardBody>
-                                        <Image source={{uri: 'http://yumn.yu.edu.jo/images/13.jpg'}} style={{height: 200, width: null, flex: 1}}/>
+                                        <Image source={{uri: 'https://www.zuaneducation.com/blog/wp-content/uploads/2017/12/Learn-Android-App-Development-from-Industry-Experts-2.jpg'}} style={{height: 200, width: null, flex: 1}}/>
                                       </CardItem>
-
                                       <CardItem>
                                         <Left>
-                                            <Text style={{paddingLeft:10,paddingRight:10,fontSize:20,color:'black',fontWeight:'700'}}>Physics exam will be at 4/5 2019 at 9:50 AM</Text>
+                                            <Text style={{paddingLeft:10,paddingRight:10,fontSize:20,color:'red'}}>SAT,MAY 25 AT 6 PM</Text>
                                         </Left>
 
 
                                       </CardItem>
+                                      <CardItem>
+                                        <Left>
+                                            <Text style={{paddingLeft:10,paddingRight:10,fontSize:20,color:'black',fontWeight:'700'}}>Zain Zinc Event</Text>
+                                        </Left>
 
+
+                                      </CardItem>
+                                      <CardItem>
+                                        <Left>
+                                            <Text style={{paddingLeft:10,paddingRight:10,fontSize:15,color:'black',fontWeight:'500'}}>Hussein Building</Text>
+                                        </Left>
+
+
+                                      </CardItem>
                                       <CardItem>
                                         <Body>
                                           <Button bordered  >
-                                            <Text style={{paddingLeft:10,paddingRight:10,fontSize:15}}>Explore more</Text>
+                                            <Text style={{paddingLeft:10,paddingRight:10,fontSize:15}}>Interested</Text>
                                           </Button>
                                         </Body>
 
@@ -187,13 +199,13 @@ class News extends Component {
 
 
                     </ScrollView>
-
+                
                 </View>
             </SafeAreaView>
         );
     }
 }
-export default News;
+export default Event;
 
 const styles = StyleSheet.create({
     container: {

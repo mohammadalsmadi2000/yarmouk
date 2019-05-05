@@ -9,6 +9,7 @@ import {
     StatusBar,
     ScrollView,
     Image,
+    TouchableOpacity,
     Dimensions,
     Animated
 } from "react-native";
@@ -16,13 +17,55 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import Category from '../components/Explore/Category'
 import Tag from '../components/Explore/Tag'
 import Home from '../components/Explore/Home'
+import Swiper from 'react-native-swiper'
+import Slider from '../components/Slider'
+import { Feather } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+
+import { LinearGradient } from 'expo';
+
+export const colors = {
+    black: '#1a1917',
+    gray: '#888888',
+    background1: '#ffffff',
+    background2: '#ffffff'
+};
+
 
 import { Card, ListItem, Button } from 'react-native-elements'
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
+  constructor(props){
+      super(props)
 
+      this.state = {
+         width: '99%',
+          imagesSlider: [
+
+            { uri:'http://langcenter.yu.edu.jo/sites/default/files/slider_images/yu%20%281%29.jpg' },
+                { uri:'https://i.pinimg.com/564x/23/b1/da/23b1da664ec94a9f7ab0854cd5d5adb1.jpg' },
+                { uri:'https://i.pinimg.com/564x/60/2e/50/602e50a07a27b77439f7bb005a44236f.jpg' },
+
+{ uri:'https://www.wired.com/images_blogs/wiredscience/2009/10/nikon2003_1st_wittmann.jpg' },
+          ]
+      }
+  }
+  get gradient () {
+      return (
+          <LinearGradient
+            colors={[colors.background1, colors.background2]}
+            startPoint={{ x: 1, y: 0 }}
+            endPoint={{ x: 0, y: 1 }}
+            style={styles.gradient}
+          />
+      );
+  }
     componentWillMount() {
-
+      setTimeout(() => {
+          this.setState({
+              width: '100%'
+          });
+      });
         this.scrollY = new Animated.Value(0)
 
         this.startHeaderHeight = 80
@@ -56,31 +99,15 @@ class HomeScreen extends Component {
 
 
     }
-
+    static navigationOptions = {
+        //To hide the ActionBar/NavigationBar
+        header: null,
+    };
     render() {
         return (
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={{ flex: 1 }}>
-                    <Animated.View style={{ height: this.animatedHeaderHeight, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#dddddd' }}>
-                        <View style={{
-                            flexDirection: 'row', padding: 10,
-                            backgroundColor: 'white', marginHorizontal: 20,
-                            shadowOffset: { width: 0, height: 0 },
-                            shadowColor: 'black',
-                            shadowOpacity: 0.2,
-                            elevation: 1,
-                            marginTop: Platform.OS == 'android' ? 30 : null
-                        }}>
-                            <Icon name="ios-search" size={20} style={{ marginRight: 10 }} />
-                            <TextInput
-                                underlineColorAndroid="transparent"
-                                placeholder="Calculus exams.."
-                                placeholderTextColor="grey"
-                                style={{ flex: 1, fontWeight: '700', backgroundColor: 'white' }}
-                            />
-                        </View>
-
-                    </Animated.View>
+ { this.gradient }
                     <ScrollView
                         scrollEventThrottle={16}
                         onScroll={Animated.event(
@@ -89,7 +116,65 @@ class HomeScreen extends Component {
                             ]
                         )}
                     >
+
+                      <View style={{  backgroundColor: 'white',  borderBottomColor: '#dddddd' }}>
+  <Slider/>
+                          <View style={{
+                              flexDirection: 'row', padding: 10,
+                              backgroundColor: 'white', marginHorizontal: 20,
+                              shadowOffset: { width: 0, height: 0 },
+                              shadowColor: 'black',
+                              borderBottomWidth:0.2,
+
+                              shadowOpacity: 0.2,
+                              borderBottomColor:'#dddddd',
+                              elevation: 1,
+                              marginTop: Platform.OS == 'android' ? 30 : null
+                          }}>
+                              <Icon name="ios-search" size={20} style={{ marginRight: 10 }} />
+                              <View
+
+                                  style={{ flex: 1, fontWeight: '700', backgroundColor: 'white' ,justifyContent:'center'}}
+                              >
+                                <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Search')}}>
+                                <Text style={{color:'silver'}}>Calculus exams..</Text></TouchableOpacity>
+                              </View>
+                          </View>
+</View>
+
                         <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 20 }}>
+                          <View style={{flexDirection:'row',justifyContent:'space-around',margin:10}}>
+                            <TouchableOpacity onPress={()=>{this.props.navigation.navigate('subject')}}>
+                          <LinearGradient
+                            colors={['#00B4DB', '#0083B0']}
+                            style={{ padding: 25, alignItems: 'center', borderRadius: 5,flexDirection:'row' }}>
+                            <Feather name="book"  size={24} color='white' />
+
+                            <Text
+                              style={{
+                                backgroundColor: 'transparent',
+                                fontSize: 15,
+                                color: '#fff',
+                              }}>
+                              Subjects
+                            </Text>
+                          </LinearGradient>
+                        </TouchableOpacity>
+                          <LinearGradient
+                            colors={['#8A2387', '#E94057','#F27121']}
+                            style={{ padding: 25, alignItems: 'center', borderRadius: 5 ,flexDirection:'row'}}>
+                            <FontAwesome name="sticky-note"  size={24} color='white' />
+
+                            <Text
+                              style={{
+                                backgroundColor: 'transparent',
+                                fontSize: 15,
+                                color: '#fff',
+                              }}>
+                              Past Paper
+                            </Text>
+                          </LinearGradient>
+</View>
                             <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
                                 What can we help you find?
                             </Text>
@@ -101,56 +186,34 @@ class HomeScreen extends Component {
                                 >
 
                                     <Category
+                                      navigation={this.props.navigation}
+                                      nav={()=>{this.props.navigation.navigate('repre')}}
                                         imageUri={'users'}
                                         name="Representatives Sections"
                                     />
                                     <Category
                                       imageUri={'user'}
-
+                                      navigation={this.props.navigation}
+                                      nav={()=>{this.props.navigation.navigate('doctor')}}
                                         name="Doctors"
                                     />
-                                    <Category
-                                      imageUri={'book'}
-                                        name="Subjects"
-                                    />
-                                    <Category
 
+                                    <Category
+                                      navigation={this.props.navigation}
+                                      nav={()=>{this.props.navigation.navigate('miss')}}
                                       imageUri={'archive'}
                                         name="Missing Page"
                                     />
                                     <Category
+                                      navigation={this.props.navigation}
+                                      nav={()=>{this.props.navigation.navigate('event')}}
                                       imageUri={'calendar'}
                                         name="Events Page"
                                     />
 
                                 </ScrollView>
                             </View>
-                            <View style={{ marginTop: 40, paddingHorizontal: 20 }}>
-                                <Text style={{ fontSize: 24, fontWeight: '700' }}>
-                                    Yarmouk Gallery
-                                </Text>
-                                <Text style={{ fontWeight: '100', marginTop: 10 }}>
-                                    Explore Yarmouk Pictures
 
-                                </Text>
-                                <ScrollView horizontal={true} pageEnabled={true}>
-                                <View style={{ width: width - 40, height: 200, marginTop: 20,marginRight:10 }}>
-
-                                  <Image
-                                                                        style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 5, borderWidth: 1, borderColor: '#dddddd' }}
-                                                                        source={{uri:'http://langcenter.yu.edu.jo/sites/default/files/slider_images/yu%20%281%29.jpg'}}
-                                                                    />
-                                </View>
-                                <View style={{ width: width - 40, height: 200, marginTop: 20,marginRight:10  }}>
-
-                                  <Image
-                                                                        style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 5, borderWidth: 1, borderColor: '#dddddd' }}
-                                                                        source={{uri:'https://cdnimgen.royanews.tv/imageserv/Size728Q40/news/20190414/17298.JPG'}}
-                                                                    />
-                                </View>
-                              </ScrollView>
-
-                            </View>
                         </View>
                         <View style={{ marginTop: 40 }}>
                             <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
@@ -166,6 +229,7 @@ class HomeScreen extends Component {
                                 </Text>
                                 <Button
                                   backgroundColor='#03A9F4'
+                                  onPress={()=>{this.props.navigation.navigate('help')}}
                                   buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
                                   title='EXPLORE NOW' />
                               </Card>
@@ -180,14 +244,17 @@ class HomeScreen extends Component {
                             <View style={{ paddingHorizontal: 20, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
 <ScrollView horizontal={true}>
 
-                              <Home imageUri={{uri:'http://hijjawi.yu.edu.jo/sites/default/files/slider_images/slider2.jpg'}}
+                              <Home imageUri={{uri:'https://photos.wikimapia.org/p/00/04/19/28/73_big.jpg'}}
                                name="Hijjawi Faculty of Engineering Technology"
+                                 nav={()=>{this.props.navigation.navigate('hij')}}
                             />
                             <Home imageUri={{uri:'http://yumn.yu.edu.jo/images/13.jpg'}}
                              name="Faculty of Science"
+                               nav={()=>{this.props.navigation.navigate('sci')}}
                           />
                           <Home imageUri={{uri:'https://khaberni-6zrocpuaymq7.stackpathdns.com/uploads/news_model/images/171443_27_1470580354.JPG'}}
                            name="Al Hussein Bin Talal Library"
+                             nav={()=>{this.props.navigation.navigate('lib')}}
                         />
                         <Home imageUri={{uri:'http://tourism.yu.edu.jo/sites/default/files/slider_images/20786344_1963875153828630_946497052_n.jpg'}}
                          name="Faculty of Tourism & Hotel Management"
@@ -204,10 +271,156 @@ class HomeScreen extends Component {
 }
 export default HomeScreen;
 
-const styles = StyleSheet.create({
+const styles =  StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: 'white'
+    },
+    recentlyPlayedTitleBar: {
+  paddingHorizontal: 16,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center"
+},
+
+
+
+ markerWrap: {
+   alignItems: "center",
+   justifyContent: "center",
+ },
+ card: {
+   flex: 1,
+ },
+ title: {
+   fontSize: 20,
+   fontWeight: '800',
+   padding: 5,
+   color: '#444',
+ },
+ postImage: {
+   backgroundColor: '#eee',
+ },
+ postInfo: {
+   padding: 3,
+   alignItems: 'center',
+ },
+ postButtons: {
+   padding: 5,
+   flexDirection: 'row',
+   flex: 1,
+   alignItems: 'center',
+ },
+ button: {
+   flex: 3,
+   padding: 5,
+   margin: 6,
+   borderRadius: 2,
+   borderWidth: 1,
+   borderColor: '#999',
+   alignItems: 'center',
+   backgroundColor: '#4285f4',
+ },
+ info: {
+   fontSize: 15,
+   color:'black',
+   margin:10
+ },
+ bold: {
+   fontWeight: 'bold',
+   color:'#2196f3'
+ },
+ boldd: {
+   fontWeight: 'bold',
+   fontSize:20
+
+ },
+ marker: {
+   width: 10,
+   height: 10,
+   borderRadius: 4,
+   backgroundColor: "rgba(130,4,150, 0.9)",
+ },
+ ring: {
+   width: 24,
+   height: 24,
+   borderRadius: 12,
+   backgroundColor: "transparent",
+   position: "absolute",
+   borderWidth: 1,
+   borderColor: "rgba(130,4,150, 0.5)",
+ },
+TextInputStyleClass:{
+
+textAlign: 'center',
+height: 40,
+borderWidth: 1,
+borderColor: 'grey',
+borderRadius: 20 ,
+backgroundColor : "#fff"
+
+},
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
+        backgroundColor: colors.background1
+    },
+    gradient: {
+        ...StyleSheet.absoluteFillObject
+    },
+    scrollview: {
+        flex: 1
+    },
+    exampleContainer: {
+        paddingVertical: 30
+    },
+    exampleContainerDark: {
+        backgroundColor: colors.black
+    },
+    exampleContainerLight: {
+        backgroundColor: 'white'
+    },
+    title: {
+        paddingHorizontal: 30,
+        backgroundColor: 'transparent',
+        color: 'black',
+        fontSize: 30,
+        fontWeight: 'bold',
+
+    },
+    title1: {
+        paddingHorizontal: 10,
+        backgroundColor: 'transparent',
+        color: 'black',
+        margin:10,
+        fontSize: 25,
+        fontWeight: 'bold',
+
+    },
+    titleDark: {
+        color: colors.black
+    },
+    subtitle: {
+        marginTop: 5,
+        paddingHorizontal: 30,
+        backgroundColor: 'transparent',
+        color: 'grey',
+        fontSize: 13,
+        fontStyle: 'italic',
+    },
+    slider: {
+        marginTop: 15,
+        overflow: 'visible' // for custom animations
+    },
+    sliderContentContainer: {
+        paddingVertical: 10 // for custom animation
+    },
+    paginationContainer: {
+        paddingVertical: 8
+    },
+    paginationDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        marginHorizontal: 8
     }
 });

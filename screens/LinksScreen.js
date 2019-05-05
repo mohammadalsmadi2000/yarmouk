@@ -1,213 +1,271 @@
-import React, { Component } from "react";
+import React from 'react';
+import { MapView } from 'expo';
 import {
-    View,
-    Text,
-    StyleSheet,
-    SafeAreaView,
-    TextInput,
-    Platform,
-    StatusBar,
-    ScrollView,
-    Image,
-    Dimensions,
-    Animated
+  AppRegistry,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Animated,
+  Image,
+  Dimensions,
+  TouchableOpacity,
 } from "react-native";
-import Icon from 'react-native-vector-icons/Ionicons'
-import Category from '../components/Explore/Category'
-import Tag from '../components/Explore/Tag'
-import Home from '../components/Explore/Home'
+const { width, height } = Dimensions.get("window");
+const CARD_HEIGHT = height / 4;
+const CARD_WIDTH = CARD_HEIGHT + 10;
+const Images = [
+  { uri: "https://photos.wikimapia.org/p/00/04/19/28/73_big.jpg" },
+  { uri: "http://yumn.yu.edu.jo/images/13.jpg" },
+  { uri: "https://khaberni-6zrocpuaymq7.stackpathdns.com/uploads/news_model/images/171443_27_1470580354.JPG" },
+  { uri: "http://tourism.yu.edu.jo/sites/default/files/slider_images/20786344_1963875153828630_946497052_n.jpg" }
+]
+import { Feather } from "react-native-vector-icons";
+import { MaterialCommunityIcons } from "react-native-vector-icons";
 
-import { Card, ListItem, Button } from 'react-native-elements'
-const { height, width } = Dimensions.get('window')
-class Nearby extends Component {
+const ASPECT_RATIOS = width / height;
+const LATITUDE_DELTA = 0.003;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIOS;
 
-    componentWillMount() {
+export default class Nearby extends React.Component {
+  state = {
+    markers: [
+      {
+        coordinate: {
+          latitude: 32.535538,
+          longitude: 35.855209,
+        },
+        title: "Hijjawi Faculty of Engineering Technology",
+        description: "هج",
+        press:'hij',
+        image: Images[0],
+      },
+      {
+        coordinate: {
+          latitude: 32.540812,
+          longitude: 35.852747,
+        },
+        title: "Faculty of Science",
+        description: "مج",
+          press:'sci',
+        image: Images[1],
+      },
+      {
+        coordinate: {
+          latitude: 32.539558,
+          longitude: 35.853241,
+        },
+        title: "Al Hussein Bin Talal Library",
+        description: "",
+          press:'lib',
+        image: Images[2],
+      },
+      {
+        coordinate: {
+          latitude: 32.537051,
+          longitude: 35.853089,
+        },
+        title: "Faculty of Tourism & Hotel Management",
+        description: "اق",
+        image: Images[3],
+      },
+    ],
+    region: {
+      latitude: 32.535538,
+      longitude: 35.855209,
+      latitudeDelta: LATITUDE_DELTA,
+                    longitudeDelta: LONGITUDE_DELTA,
+    },
+  };
+  componentWillMount() {
+    this.index = 0;
+    this.animation = new Animated.Value(0);
+  }
+  componentDidMount() {
+    // We should detect when scrolling has stopped then animate
+    // We should just debounce the event listener here
+    this.animation.addListener(({ value }) => {
+      let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
+      if (index >= this.state.markers.length) {
+        index = this.state.markers.length - 1;
+      }
+      if (index <= 0) {
+        index = 0;
+      }
 
-        this.scrollY = new Animated.Value(0)
-
-        this.startHeaderHeight = 80
-        this.endHeaderHeight = 50
-        if (Platform.OS == 'android') {
-            this.startHeaderHeight = 100 + StatusBar.currentHeight
-            this.endHeaderHeight = 70 + StatusBar.currentHeight
+      clearTimeout(this.regionTimeout);
+      this.regionTimeout = setTimeout(() => {
+        if (this.index !== index) {
+          this.index = index;
+          const { coordinate } = this.state.markers[index];
+          this.map.animateToRegion(
+            {
+              ...coordinate,
+              latitudeDelta: this.state.region.latitudeDelta,
+              longitudeDelta: this.state.region.longitudeDelta,
+            },
+            350
+          );
         }
-
-        this.animatedHeaderHeight = this.scrollY.interpolate({
-            inputRange: [0, 50],
-            outputRange: [this.startHeaderHeight, this.endHeaderHeight],
-            extrapolate: 'clamp'
-        })
-
-        this.animatedOpacity = this.animatedHeaderHeight.interpolate({
-            inputRange: [this.endHeaderHeight, this.startHeaderHeight],
-            outputRange: [0, 1],
-            extrapolate: 'clamp'
-        })
-        this.animatedTagTop = this.animatedHeaderHeight.interpolate({
-            inputRange: [this.endHeaderHeight, this.startHeaderHeight],
-            outputRange: [-30, 10],
-            extrapolate: 'clamp'
-        })
-        this.animatedMarginTop = this.animatedHeaderHeight.interpolate({
-            inputRange: [this.endHeaderHeight, this.startHeaderHeight],
-            outputRange: [50, 30],
-            extrapolate: 'clamp'
-        })
+      }, 10);
+    });
+  }
 
 
-    }
-
-    render() {
-        return (
-            <SafeAreaView style={{ flex: 1 }}>
-                <View style={{ flex: 1 }}>
-                    <Animated.View style={{ height: this.animatedHeaderHeight, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#dddddd' }}>
-                        <View style={{
-                            flexDirection: 'row', padding: 10,
-                            backgroundColor: 'white', marginHorizontal: 20,
-                            shadowOffset: { width: 0, height: 0 },
-                            shadowColor: 'black',
-                            shadowOpacity: 0.2,
-                            elevation: 1,
-                            marginTop: Platform.OS == 'android' ? 30 : null
-                        }}>
-                            <Icon name="ios-search" size={20} style={{ marginRight: 10 }} />
-                            <TextInput
-                                underlineColorAndroid="transparent"
-                                placeholder="Calculus exams.."
-                                placeholderTextColor="grey"
-                                style={{ flex: 1, fontWeight: '700', backgroundColor: 'white' }}
-                            />
-                        </View>
-
-                    </Animated.View>
-                    <ScrollView
-                        scrollEventThrottle={16}
-                        onScroll={Animated.event(
-                            [
-                                { nativeEvent: { contentOffset: { y: this.scrollY } } }
-                            ]
-                        )}
-                    >
-                        <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 20 }}>
-                            <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                                What can we help you find?
-                            </Text>
-
-                            <View style={{ height: 130, marginTop: 20 }}>
-                                <ScrollView
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={false}
-                                >
-
-                                    <Category
-                                        imageUri={'users'}
-                                        name="Representatives Sections"
-                                    />
-                                    <Category
-                                      imageUri={'user'}
-
-                                        name="Doctors"
-                                    />
-                                    <Category
-                                      imageUri={'book'}
-                                        name="Subjects"
-                                    />
-                                    <Category
-
-                                      imageUri={'archive'}
-                                        name="Missing Page"
-                                    />
-                                    <Category
-                                      imageUri={'calendar'}
-                                        name="Events Page"
-                                    />
-
-                                </ScrollView>
-                            </View>
-                            <View style={{ marginTop: 40, paddingHorizontal: 20 }}>
-                                <Text style={{ fontSize: 24, fontWeight: '700' }}>
-                                    Yarmouk Gallery
-                                </Text>
-                                <Text style={{ fontWeight: '100', marginTop: 10 }}>
-                                    Explore Yarmouk Pictures
-
-                                </Text>
-                                <ScrollView horizontal={true} pageEnabled={true}>
-                                <View style={{ width: width - 40, height: 200, marginTop: 20,marginRight:10 }}>
-
-                                  <Image
-                                                                        style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 5, borderWidth: 1, borderColor: '#dddddd' }}
-                                                                        source={{uri:'http://langcenter.yu.edu.jo/sites/default/files/slider_images/yu%20%281%29.jpg'}}
-                                                                    />
-                                </View>
-                                <View style={{ width: width - 40, height: 200, marginTop: 20,marginRight:10  }}>
-
-                                  <Image
-                                                                        style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 5, borderWidth: 1, borderColor: '#dddddd' }}
-                                                                        source={{uri:'https://cdnimgen.royanews.tv/imageserv/Size728Q40/news/20190414/17298.JPG'}}
-                                                                    />
-                                </View>
-                              </ScrollView>
-
-                            </View>
-                        </View>
-                        <View style={{ marginTop: 40 }}>
-                            <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                                Do you need any help?
-                            </Text>
-                            <View style={{ paddingHorizontal: 20, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-
-                              <Card
-                                title='Yarmouk Help'
-                              >
-                                <Text style={{marginBottom: 10}}>
-                                  Ask any question or Answer people who need help.
-                                </Text>
-                                <Button
-                                  backgroundColor='#03A9F4'
-                                  buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                                  title='EXPLORE NOW' />
-                              </Card>
+  render() {
 
 
-                            </View>
-                        </View>
-                        <View style={{ marginTop: 40 }}>
-                            <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                                Buildings
-                            </Text>
-                            <View style={{ paddingHorizontal: 20, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-<ScrollView horizontal={true}>
+    const interpolations = this.state.markers.map((marker, index) => {
+     const inputRange = [
+       (index - 1) * CARD_WIDTH,
+       index * CARD_WIDTH,
+       ((index + 1) * CARD_WIDTH),
+     ];
+     const scale = this.animation.interpolate({
+       inputRange,
+       outputRange: [1, 2.5, 1],
+       extrapolate: "clamp",
+     });
+     const opacity = this.animation.interpolate({
+       inputRange,
+       outputRange: [0.35, 1, 0.35],
+       extrapolate: "clamp",
+     });
+     return { scale, opacity };
+   });
+    return (
+      <View style={styles.container}>
+       <MapView
+         ref={map => this.map = map}
+         initialRegion={this.state.region}
+         style={styles.container}
 
-                              <Home imageUri={{uri:'http://hijjawi.yu.edu.jo/sites/default/files/slider_images/slider2.jpg'}}
-                               name="Hijjawi Faculty of Engineering Technology"
-                            />
-                            <Home imageUri={{uri:'http://yumn.yu.edu.jo/images/13.jpg'}}
-                             name="Faculty of Science"
-                          />
-                          <Home imageUri={{uri:'https://khaberni-6zrocpuaymq7.stackpathdns.com/uploads/news_model/images/171443_27_1470580354.JPG'}}
-                           name="Al Hussein Bin Talal Library"
-                        />
-                        <Home imageUri={{uri:'http://tourism.yu.edu.jo/sites/default/files/slider_images/20786344_1963875153828630_946497052_n.jpg'}}
-                         name="Faculty of Tourism & Hotel Management"
-                      />
-</ScrollView>
-                            </View>
-                        </View>
-                    </ScrollView>
+         mapType='satellite'
+       >
 
-                </View>
-            </SafeAreaView>
-        );
-    }
+         {this.state.markers.map((marker, index) => {
+           const scaleStyle = {
+             transform: [
+               {
+                 scale: interpolations[index].scale,
+               },
+             ],
+           };
+           const opacityStyle = {
+             opacity: interpolations[index].opacity,
+           };
+           return (
+             <MapView.Marker key={index} coordinate={marker.coordinate}>
+               <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                 <Animated.View style={[styles.ring, scaleStyle]} />
+                 <View style={styles.marker} />
+               </Animated.View>
+             </MapView.Marker>
+           );
+         })}
+       </MapView>
+       <Animated.ScrollView
+         horizontal
+         scrollEventThrottle={1}
+         showsHorizontalScrollIndicator={false}
+         snapToInterval={CARD_WIDTH}
+         onScroll={Animated.event(
+           [
+             {
+               nativeEvent: {
+                 contentOffset: {
+                   x: this.animation,
+                 },
+               },
+             },
+           ],
+           { useNativeDriver: true }
+         )}
+         style={styles.scrollView}
+         contentContainerStyle={styles.endPadding}
+       >
+         {this.state.markers.map((marker, index) => (
+           <TouchableOpacity style={styles.card} key={index} onPress={()=>{this.props.navigation.navigate(marker.press)}}>
+             <Image
+               source={marker.image}
+               style={styles.cardImage}
+               resizeMode="cover"
+             />
+             <View style={styles.textContent}>
+               <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
+               <Text numberOfLines={1} style={styles.cardDescription}>
+                 {marker.description}
+               </Text>
+             </View>
+           </TouchableOpacity>
+         ))}
+       </Animated.ScrollView>
+     </View>
+    );
+  }
 }
-export default Nearby;
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    position: "absolute",
+    bottom: 30,
+    left: 0,
+    right: 0,
+    paddingVertical: 10,
+  },
+  endPadding: {
+    paddingRight: width - CARD_WIDTH,
+  },
+  card: {
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#FFF",
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
+    overflow: "hidden",
+  },
+  cardImage: {
+    flex: 3,
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
+  },
+  textContent: {
+    flex: 1,
+  },
+  cardtitle: {
+    fontSize: 12,
+    marginTop: 5,
+    fontWeight: "bold",
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: "#444",
+  },
+  markerWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  marker: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(130,4,150, 0.9)",
+  },
+  ring: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(130,4,150, 0.3)",
+    position: "absolute",
+    borderWidth: 1,
+    borderColor: "rgba(130,4,150, 0.5)",
+  },
 });
